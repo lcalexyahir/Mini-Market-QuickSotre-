@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-header">
+            <h1><i class="fas fa-store"></i> Bienvenido, {{ session.full_name }}</h1>
+            <p>Panel principal del sistema de gestión MiniMarket QuickStore</p>
+            <p><strong>Rol:</strong> {{ session.rol }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+
+    {% if permissions_dashboard.can_view_users %}
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary dashboard-card">
+            <div class="card-body">
+                <h5><i class="fas fa-users"></i> Usuarios Activos</h5>
+                <h2>{{ stats.users }}</h2>
+                <a href="{{ url_for('users.list_users') }}" class="text-white">
+                    Ver detalles →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if permissions_dashboard.can_view_clients %}
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success dashboard-card">
+            <div class="card-body">
+                <h5><i class="fas fa-user-friends"></i> Clientes</h5>
+                <h2>{{ stats.clients }}</h2>
+                <a href="{{ url_for('clients.list_clients') }}" class="text-white">
+                    Ver detalles →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if permissions_dashboard.can_view_attendance %}
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-info dashboard-card">
+            <div class="card-body">
+                <h5><i class="fas fa-clock"></i> Bitacora</h5>
+                <h2>{{ stats.today_attendance }}</h2>
+                <a href="{{ url_for('attendance.attendance_dashboard') }}" class="text-white">
+                    Ver registro →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if permissions_dashboard.can_view_permissions %}
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning dashboard-card">
+            <div class="card-body">
+                <h5><i class="fas fa-key"></i> Módulos / Permisos</h5>
+                <h2>{{ stats.permissions }}</h2>
+                <a href="{{ url_for('permissions.list_permissions') }}" class="text-white">
+                    Ver permisos →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if permissions_dashboard.can_view_products %}
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-warning dashboard-card">
+            <div class="card-body">
+                <h5><i class="fas fa-box"></i> Productos</h5>
+                <h2>{{ stats.products }}</h2>
+                <a href="{{ url_for('products.list_products') }}" class="text-white">
+                    Ver detalles →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if not permissions_dashboard.can_view_users
+   and not permissions_dashboard.can_view_clients
+   and not permissions_dashboard.can_view_attendance
+   and not permissions_dashboard.can_view_permissions
+   and not permissions_dashboard.can_view_products %}
+
+<div class="card system-card mt-4">
+    <div class="card-body text-center">
+        <h4><i class="fas fa-lock"></i> Sin módulos asignados</h4>
+        <p class="text-muted">
+            Actualmente no tienes permisos asignados para ver módulos en el dashboard.
+            Comunícate con el administrador del sistema.
+        </p>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

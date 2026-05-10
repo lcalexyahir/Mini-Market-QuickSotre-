@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Asignar Permisos{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-user-shield"></i> Asignar Permisos</h1>
+    <p>Usuario: <strong>{{ user.nombre }}</strong> | Código: <strong>{{ user.codigo }}</strong></p>
+</div>
+
+<div class="card system-card">
+    <div class="card-header bg-primary text-white">
+        <h5><i class="fas fa-key"></i> Permisos disponibles</h5>
+    </div>
+
+    <div class="card-body">
+
+        <form method="POST">
+
+            {% for module, perms in grouped_permissions.items() %}
+
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-folder-open"></i> {{ module }}
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    {% for perm in perms %}
+                    <div class="form-check mb-2">
+
+                        <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            name="permissions" 
+                            value="{{ perm.id }}" 
+                            id="perm_{{ perm.id }}"
+                            {% if perm.checked %}checked{% endif %}
+                        >
+
+                        <label class="form-check-label" for="perm_{{ perm.id }}">
+                            <strong>{{ perm.nombre }}</strong>
+                            <br>
+                            <small class="text-muted">
+                                {{ perm.descripcion or 'Sin descripción' }}
+                            </small>
+                        </label>
+
+                    </div>
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            {% endfor %}
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar permisos
+                </button>
+
+                <a href="{{ url_for('permissions.list_permissions') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

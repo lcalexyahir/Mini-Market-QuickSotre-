@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Registro de Actividad{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-clock"></i> Registro automático de acciones</h1>
+    <p>El sistema registra automáticamente el ingreso de cada usuario al iniciar sesión.</p>
+</div>
+
+<div class="card system-card">
+    <div class="card-header bg-primary text-white">
+        <h5><i class="fas fa-list"></i> Actividad de hoy</h5>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Acción</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for att in today_attendance %}
+                    <tr>
+                        <td><strong>{{ att.codigo_usuario }}</strong></td>
+                        <td>{{ att.nombre }}</td>
+                        <td>
+                            <span class="badge {% if att.rol == 'admin' %}bg-danger{% else %}bg-info{% endif %}">
+                                {{ att.rol }}
+                            </span>
+                        </td>
+                        <td>{{ att.accion }}</td>
+                        <td>{{ att.fecha_hora.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ att.fecha_hora.strftime('%H:%M:%S') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No hay registros todavía.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

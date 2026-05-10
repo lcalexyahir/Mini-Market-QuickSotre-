@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Permisos{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-key"></i> Gestión de Permisos</h1>
+    <p>Seleccione un usuario para asignarle permisos dentro del sistema MiniMarket.</p>
+</div>
+
+<div class="row mb-4">
+
+    <div class="col-md-6 mb-3">
+        <div class="card dashboard-card bg-primary text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-users"></i> Usuarios registrados</h5>
+                <h2>{{ users|length }}</h2>
+                <p class="mb-0">Administradores y cajeros del sistema</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card dashboard-card bg-warning text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-shield-alt"></i> Permisos disponibles</h5>
+                <h2>{{ permissions|length }}</h2>
+                <p class="mb-0">Accesos que pueden asignarse por usuario</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card system-card">
+    <div class="card-header bg-dark text-white">
+        <h5><i class="fas fa-user-lock"></i> Usuarios para asignación de permisos</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="alert alert-info">
+            <strong>Nota:</strong> El administrador tiene acceso total al sistema. 
+            A los cajeros se les puede asignar permisos específicos según sus funciones.
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>CI</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><strong>{{ user.codigo }}</strong></td>
+
+                        <td>{{ user.nombre }}</td>
+
+                        <td>{{ user.ci or '-' }}</td>
+
+                        <td>
+                            <span class="badge {% if user.rol == 'admin' %}bg-danger{% else %}bg-info{% endif %}">
+                                {{ user.rol }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge {% if user.estado %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ 'Activo' if user.estado else 'Inactivo' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if user.rol == 'cajero' %}
+                                <a href="{{ url_for('permissions.assign_permissions', user_id=user.codigo) }}" 
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-key"></i> Asignar permisos
+                                </a>
+                            {% else %}
+                                <span class="badge bg-dark">
+                                    Acceso total
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">
+                            No hay usuarios registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

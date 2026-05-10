@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Cliente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-user-plus"></i> Nuevo Cliente</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Campo CI (document_id) -->
+                    <div class="mb-3">
+                        <label for="ci" class="form-label">CI *</label>
+                        <input type="text" class="form-control" id="ci" name="ci" required>
+                    </div>
+
+                    <!-- Campo Nombre Completo (full_name) -->
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre Completo *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+
+                    <!-- Campo Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+
+                    <!-- Campo Teléfono -->
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="telefono" name="telefono">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <a href="{{ url_for('clients.list_clients') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
