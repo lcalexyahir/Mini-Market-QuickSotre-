@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Almacén{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-edit"></i> Editar Almacén</h1>
+    <p>Modificar los datos del almacén seleccionado.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <div class="card system-card">
+            <div class="card-header bg-warning">
+                <h5>
+                    <i class="fas fa-warehouse"></i>
+                    Almacén: {{ warehouse.nombre }}
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label class="form-label">Código</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ warehouse.codigo }}"
+                            disabled
+                        >
+                        <small class="text-muted">
+                            El código del almacén no se puede modificar.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del almacén *</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nombre"
+                            name="nombre"
+                            value="{{ warehouse.nombre }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="direccion"
+                            name="direccion"
+                            value="{{ warehouse.direccion or '' }}"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="capacidad_total" class="form-label">Capacidad total</label>
+                        <input
+                            type="number"
+                            min="0"
+                            class="form-control"
+                            id="capacidad_total"
+                            name="capacidad_total"
+                            value="{{ warehouse.capacidad_total or 0 }}"
+                        >
+                        <small class="text-muted">
+                            No puede ser menor que la capacidad actual: {{ warehouse.capacidad_actual or 0 }}.
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+
+                    <a href="{{ url_for('warehouses.list_warehouses') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

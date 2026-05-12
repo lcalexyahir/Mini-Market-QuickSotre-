@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Proveedor{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-plus-circle"></i> Nuevo Proveedor</h1>
+    <p>Registrar un nuevo proveedor en el sistema MiniMarket QuickStore.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <div class="card system-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-truck"></i> Datos del proveedor</h5>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <div class="alert alert-info">
+                        <strong>Nota:</strong> El código del proveedor se generará automáticamente.
+                        Ejemplo: PROV001, PROV002, PROV003.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del proveedor *</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nombre"
+                            name="nombre"
+                            required
+                            placeholder="Ej: Alicorp"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea
+                            class="form-control"
+                            id="descripcion"
+                            name="descripcion"
+                            rows="3"
+                            placeholder="Ej: Líder en productos de consumo masivo"
+                        ></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="direccion"
+                            name="direccion"
+                            placeholder="Ej: Av. Banzer"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="telefono"
+                            name="telefono"
+                            placeholder="Ej: 77001122"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            placeholder="Ej: contacto@proveedor.com"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+
+                    <a href="{{ url_for('providers.list_providers') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

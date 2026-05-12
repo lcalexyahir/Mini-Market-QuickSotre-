@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from models.user import User
 from models.attendance import Attendance
 from models.password_reset import PasswordReset
+from utils.password_validator import validate_password_strength
 
 import os
 import random
@@ -11,11 +12,13 @@ from email.mime.multipart import MIMEMultipart
 
 auth_bp = Blueprint('auth', __name__)
 
+
 def generate_recovery_code():
     """
     Generar código numérico de 6 dígitos.
     """
     return str(random.randint(100000, 999999))
+
 
 def send_recovery_email(user, code):
     """
@@ -85,7 +88,7 @@ def login():
             Attendance.register_login_action(user['codigo'], 'INICIO DE SESIÓN')
 
             flash(f'Bienvenido {user["nombre"]}', 'success')
-            return redirect(url_for('dashboard'))  # Redirigir al dashboard
+            return redirect(url_for('dashboard'))
         else:
             flash('Código o contraseña incorrectos', 'danger')
 
@@ -99,7 +102,7 @@ def logout():
 
     session.clear()
     flash('Sesión cerrada exitosamente', 'info')
-    return redirect(url_for('auth.login'))  # Redirigir al login
+    return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/forgot-password', methods=['GET', 'POST'])
@@ -158,8 +161,14 @@ def reset_password():
             flash('Las contraseñas no coinciden', 'danger')
             return render_template('reset_password.html')
 
-        if len(new_password) < 3:
-            flash('La contraseña debe tener al menos 3 caracteres', 'danger')
+        # Validar seguridad de la nueva contraseña
+        password_errors = validate_password_strength(new_password)
+
+        if password_errors:
+            flash(
+                'La contraseña debe tener: ' + ', '.join(password_errors),
+                'danger'
+            )
             return render_template('reset_password.html')
 
         user = User.find_by_username(codigo)

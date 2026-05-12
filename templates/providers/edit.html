@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Proveedor{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-edit"></i> Editar Proveedor</h1>
+    <p>Modificar los datos del proveedor seleccionado.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <div class="card system-card">
+            <div class="card-header bg-warning">
+                <h5>
+                    <i class="fas fa-truck"></i>
+                    Proveedor: {{ provider.nombre }}
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <div class="mb-3">
+                        <label class="form-label">Código</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            value="{{ provider.codigo }}"
+                            disabled
+                        >
+                        <small class="text-muted">
+                            El código del proveedor no se puede modificar.
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del proveedor *</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nombre"
+                            name="nombre"
+                            value="{{ provider.nombre }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea
+                            class="form-control"
+                            id="descripcion"
+                            name="descripcion"
+                            rows="3"
+                        >{{ provider.descripcion or '' }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="direccion"
+                            name="direccion"
+                            value="{{ provider.direccion or '' }}"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label">Teléfono</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="telefono"
+                            name="telefono"
+                            value="{{ provider.telefono or '' }}"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input
+                            type="email"
+                            class="form-control"
+                            id="email"
+                            name="email"
+                            value="{{ provider.email or '' }}"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+
+                    <a href="{{ url_for('providers.list_providers') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

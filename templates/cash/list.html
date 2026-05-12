@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Caja{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-cash-register"></i> Gestión de Caja</h1>
+    <p>Apertura, cierre y control de ingresos por ventas.</p>
+</div>
+
+<div class="row mb-4">
+
+    <div class="col-md-6 mb-3">
+        <div class="card system-card {% if open_cash %}bg-success{% else %}bg-secondary{% endif %} text-white">
+            <div class="card-body">
+                <h5><i class="fas fa-lock-open"></i> Estado de mi caja</h5>
+
+                {% if open_cash %}
+                    <h2>Abierta</h2>
+                    <p class="mb-1">Código: <strong>{{ open_cash.codigo }}</strong></p>
+                    <p class="mb-0">
+                        Apertura:
+                        {{ open_cash.fecha_apertura.strftime('%d/%m/%Y %H:%M') }}
+                    </p>
+                {% else %}
+                    <h2>Cerrada</h2>
+                    <p class="mb-0">No tienes una caja abierta actualmente.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card system-card">
+            <div class="card-body d-flex flex-column justify-content-center h-100">
+
+                {% if open_cash %}
+                    <a href="{{ url_for('cash.detail_cash', codigo=open_cash.codigo) }}" class="btn btn-info mb-2">
+                        <i class="fas fa-eye"></i> Ver mi caja abierta
+                    </a>
+
+                    <a href="{{ url_for('cash.close_cash', codigo=open_cash.codigo) }}" class="btn btn-danger">
+                        <i class="fas fa-lock"></i> Cerrar caja
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('cash.open_cash') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Abrir caja
+                    </a>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card system-card">
+    <div class="card-header bg-dark text-white">
+        <h5><i class="fas fa-list"></i> Historial de cajas</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Usuario</th>
+                        <th>Apertura</th>
+                        <th>Cierre</th>
+                        <th>Monto Inicial</th>
+                        <th>Total Ventas</th>
+                        <th>Monto Final</th>
+                        <th>Diferencia</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for caja in cash_registers %}
+                    <tr>
+                        <td>
+                            <strong>{{ caja.codigo }}</strong>
+                        </td>
+
+                        <td>
+                            {{ caja.usuario }}
+                            <br>
+                            <small class="text-muted">{{ caja.codigo_usuario }}</small>
+                        </td>
+
+                        <td>
+                            {{ caja.fecha_apertura.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+
+                        <td>
+                            {% if caja.fecha_cierre %}
+                                {{ caja.fecha_cierre.strftime('%d/%m/%Y %H:%M') }}
+                            {% else %}
+                                <span class="text-muted">Sin cerrar</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            Bs {{ "%.2f"|format((caja.monto_inicial or 0)|float) }}
+                        </td>
+
+                        <td>
+                            Bs {{ "%.2f"|format((caja.total_ventas or 0)|float) }}
+                        </td>
+
+                        <td>
+                            {% if caja.monto_final is not none %}
+                                Bs {{ "%.2f"|format((caja.monto_final or 0)|float) }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if caja.estado == 'cerrada' %}
+                                {% if caja.diferencia > 0 %}
+                                    <span class="badge bg-success">
+                                        + Bs {{ "%.2f"|format((caja.diferencia or 0)|float) }}
+                                    </span>
+                                {% elif caja.diferencia < 0 %}
+                                    <span class="badge bg-danger">
+                                        Bs {{ "%.2f"|format((caja.diferencia or 0)|float) }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        Bs 0.00
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if caja.estado == 'abierta' %}
+                                <span class="badge bg-success">Abierta</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Cerrada</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for('cash.detail_cash', codigo=caja.codigo) }}"
+                               class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            {% if caja.estado == 'abierta' %}
+                            <a href="{{ url_for('cash.close_cash', codigo=caja.codigo) }}"
+                               class="btn btn-sm btn-danger">
+                                <i class="fas fa-lock"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="10" class="text-center text-muted">
+                            No hay cajas registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

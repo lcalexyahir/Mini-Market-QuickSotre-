@@ -20,31 +20,29 @@ def list_clients():
 def create_client():
     """Crear cliente"""
     if request.method == 'POST':
-        # Obtener los datos del formulario
-        document_id = request.form.get('ci')
-        full_name = request.form.get('nombre')
-        email = request.form.get('email')
-        phone = request.form.get('telefono')
-       
-        # Validación de campos obligatorios
-        if not all([document_id, full_name]):
+        ci = request.form.get('ci')
+        nombre = request.form.get('nombre')
+        correo_electronico = request.form.get('email')
+        telefono = request.form.get('telefono')
+
+        if not all([ci, nombre]):
             flash('Documento y nombre son requeridos', 'danger')
             return render_template('clients/create.html')
-       
-        # Verificar si ya existe un cliente con el mismo documento
-        existing = Client.find_by_document(document_id)
+
+        existing = Client.find_by_document(ci)
+
         if existing:
             flash('Ya existe un cliente con ese documento', 'danger')
             return render_template('clients/create.html')
-       
-        # Crear el cliente
-        client = Client.create(document_id, full_name, email, phone)  # Eliminamos 'address'
+
+        client = Client.create(ci, nombre, correo_electronico, telefono)
+
         if client:
-            flash(f'Cliente {client["full_name"]} creado exitosamente', 'success')
+            flash(f'Cliente {client["nombre"]} creado exitosamente', 'success')
             return redirect(url_for('clients.list_clients'))
         else:
             flash('Error al crear el cliente', 'danger')
-   
+
     return render_template('clients/create.html')
 
 
@@ -54,32 +52,33 @@ def create_client():
 def edit_client(client_id):
     """Editar cliente"""
     client = Client.find_by_id(client_id)
+
     if not client:
         flash('Cliente no encontrado', 'danger')
         return redirect(url_for('clients.list_clients'))
-   
+
     if request.method == 'POST':
-        # Obtener los datos del formulario
-        full_name = request.form.get('nombre')
-        email = request.form.get('email')
-        phone = request.form.get('telefono')
-        is_active = request.form.get('is_active') == 'on'
-       
-        # Actualizar el cliente
+        nombre = request.form.get('nombre')
+        correo_electronico = request.form.get('email')
+        telefono = request.form.get('telefono')
+
+        if not nombre:
+            flash('El nombre del cliente es obligatorio', 'danger')
+            return render_template('clients/edit.html', client=client)
+
         updated_client = Client.update(
             client_id,
-            full_name=full_name,
-            email=email,
-            phone=phone,
-            is_active=is_active
+            nombre=nombre,
+            correo_electronico=correo_electronico,
+            telefono=telefono
         )
-       
+
         if updated_client:
-            flash(f'Cliente {updated_client["full_name"]} actualizado exitosamente', 'success')
+            flash(f'Cliente {updated_client["nombre"]} actualizado exitosamente', 'success')
             return redirect(url_for('clients.list_clients'))
         else:
             flash('Error al actualizar el cliente', 'danger')
-   
+
     return render_template('clients/edit.html', client=client)
 
 
@@ -89,27 +88,30 @@ def edit_client(client_id):
 def delete_client(client_id):
     """Eliminar cliente"""
     result = Client.delete(client_id)
+
     if result:
         flash('Cliente eliminado exitosamente', 'success')
     else:
         flash('Error al eliminar el cliente', 'danger')
-   
+
     return redirect(url_for('clients.list_clients'))
 
 
 @client_bp.route('/search')
 @login_required
 def search_clients():
-    """API: Buscar clientes (para autocomplete)"""
+    """API: Buscar clientes"""
     term = request.args.get('term', '')
+
     if len(term) < 2:
         return jsonify([])
-   
+
     clients = Client.search(term)
+
     return jsonify([{
         'id': c['id'],
-        'document_id': c['document_id'],
-        'full_name': c['full_name'],
-        'email': c['email'],
-        'phone': c['phone']
+        'document_id': c['ci'],
+        'full_name': c['nombre'],
+        'email': c['correo_electronico'],
+        'phone': c['telefono']
     } for c in clients])

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Almacén{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-plus-circle"></i> Nuevo Almacén</h1>
+    <p>Registrar un nuevo almacén para el control de inventario.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+
+        <div class="card system-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-warehouse"></i> Datos del almacén</h5>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST">
+
+                    <div class="alert alert-info">
+                        <strong>Nota:</strong> El código del almacén se generará automáticamente.
+                        Ejemplo: ALM001, ALM002, ALM003.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre del almacén *</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nombre"
+                            name="nombre"
+                            required
+                            placeholder="Ej: Almacén Principal"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="direccion"
+                            name="direccion"
+                            placeholder="Ej: Sucursal principal"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="capacidad_total" class="form-label">Capacidad total</label>
+                        <input
+                            type="number"
+                            min="0"
+                            class="form-control"
+                            id="capacidad_total"
+                            name="capacidad_total"
+                            placeholder="Ej: 1000"
+                        >
+                        <small class="text-muted">
+                            Si colocas 0, se tomará como capacidad sin límite definido.
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+
+                    <a href="{{ url_for('warehouses.list_warehouses') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

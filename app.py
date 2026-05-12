@@ -5,7 +5,11 @@ from models.user import User
 from models.client import Client
 from models.attendance import Attendance
 from models.permission import Permission
-from models.product import Product  # Asegúrate de que el modelo de Producto esté importado
+from models.product import Product
+from models.provider import Provider
+from models.sale import Sale
+from models.cash import Cash
+from models.warehouse import Warehouse
 
 from utils.decorators import login_required
 
@@ -14,7 +18,11 @@ from controllers.user_controller import user_bp
 from controllers.permission_controller import permission_bp
 from controllers.client_controller import client_bp
 from controllers.attendance_controller import attendance_bp
-from controllers.product_controller import product_bp  # Importamos el Blueprint de productos
+from controllers.product_controller import product_bp
+from controllers.provider_controller import provider_bp
+from controllers.sale_controller import sale_bp
+from controllers.cash_controller import cash_bp
+from controllers.warehouse_controller import warehouse_bp
 
 app = Flask(__name__)
 app.config.from_object(config['development'])
@@ -48,7 +56,12 @@ app.register_blueprint(user_bp)
 app.register_blueprint(permission_bp)
 app.register_blueprint(client_bp)
 app.register_blueprint(attendance_bp)
-app.register_blueprint(product_bp, url_prefix='/products')  # Registra el Blueprint de Productos
+app.register_blueprint(product_bp)
+app.register_blueprint(provider_bp)
+app.register_blueprint(sale_bp)
+app.register_blueprint(cash_bp)
+app.register_blueprint(warehouse_bp)
+
 
 # Rutas principales
 @app.route('/')
@@ -67,7 +80,9 @@ def index():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """Dashboard principal con bloques según permisos"""
+    """
+    Dashboard principal con bloques según permisos.
+    """
 
     codigo_usuario = session.get('user_id')
 
@@ -76,7 +91,11 @@ def dashboard():
     can_view_clients = Permission.has_permission(codigo_usuario, 'client_read')
     can_view_attendance = Permission.has_permission(codigo_usuario, 'attendance_read')
     can_view_permissions = Permission.has_permission(codigo_usuario, 'permission_read')
-    can_view_products = Permission.has_permission(codigo_usuario, 'product_read')  # Verificación de permisos de productos
+    can_view_products = Permission.has_permission(codigo_usuario, 'product_read')
+    can_view_providers = Permission.has_permission(codigo_usuario, 'provider_read')
+    can_view_sales = Permission.has_permission(codigo_usuario, 'sale_read')
+    can_view_cash = Permission.has_permission(codigo_usuario, 'cash_read')
+    can_view_warehouses = Permission.has_permission(codigo_usuario, 'warehouse_read')
 
     stats = {}
 
@@ -97,9 +116,23 @@ def dashboard():
         permissions = Permission.get_all()
         stats['permissions'] = len(permissions)
 
-    if can_view_products:  # Solo cuenta los productos si tiene el permiso
-        products = Product.get_all()  # Asegúrate de que este método devuelva los productos
-        stats['products'] = len(products)  # Contamos cuántos productos hay
+    if can_view_products:
+        products = Product.get_all()
+        stats['products'] = len(products)
+
+    if can_view_providers:
+        providers = Provider.get_all()
+        stats['providers'] = len(providers)
+
+    if can_view_sales:
+        stats['sales'] = Sale.count_all()
+
+    if can_view_cash:
+        stats['cash'] = Cash.count_all()
+        stats['cash_open'] = Cash.count_open()
+
+    if can_view_warehouses:
+        stats['warehouses'] = Warehouse.count_all()
 
     # Diccionario con permisos para mostrar los bloques correspondientes
     permissions_dashboard = {
@@ -107,10 +140,13 @@ def dashboard():
         'can_view_clients': can_view_clients,
         'can_view_attendance': can_view_attendance,
         'can_view_permissions': can_view_permissions,
-        'can_view_products': can_view_products  # Incluir la verificación de productos
+        'can_view_products': can_view_products,
+        'can_view_providers': can_view_providers,
+        'can_view_sales': can_view_sales,
+        'can_view_cash': can_view_cash,
+        'can_view_warehouses': can_view_warehouses
     }
 
-    # Renderiza el dashboard con las estadísticas y los permisos
     return render_template(
         'dashboard.html',
         stats=stats,

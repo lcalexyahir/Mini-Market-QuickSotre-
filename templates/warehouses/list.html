@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Almacén{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-warehouse"></i> Gestión de Almacén</h1>
+    <p>Administración de almacenes e inventario del sistema MiniMarket QuickStore.</p>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="fas fa-list"></i> Almacenes registrados</h4>
+
+    <a href="{{ url_for('warehouses.create_warehouse') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Almacén
+    </a>
+</div>
+
+<div class="card system-card">
+    <div class="card-header bg-dark text-white">
+        <h5><i class="fas fa-warehouse"></i> Lista de almacenes</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Dirección</th>
+                        <th>Capacidad Actual</th>
+                        <th>Capacidad Total</th>
+                        <th>Ocupación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for warehouse in warehouses %}
+                    <tr>
+                        <td>
+                            <strong>{{ warehouse.codigo }}</strong>
+                        </td>
+
+                        <td>{{ warehouse.nombre }}</td>
+
+                        <td>{{ warehouse.direccion or '-' }}</td>
+
+                        <td>{{ warehouse.capacidad_actual or 0 }}</td>
+
+                        <td>
+                            {% if warehouse.capacidad_total and warehouse.capacidad_total > 0 %}
+                                {{ warehouse.capacidad_total }}
+                            {% else %}
+                                Sin límite
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if warehouse.capacidad_total and warehouse.capacidad_total > 0 %}
+                                {% set porcentaje = ((warehouse.capacidad_actual or 0) / warehouse.capacidad_total * 100) %}
+
+                                {% if porcentaje >= 90 %}
+                                    <span class="badge bg-danger">
+                                        {{ "%.0f"|format(porcentaje) }}%
+                                    </span>
+                                {% elif porcentaje >= 70 %}
+                                    <span class="badge bg-warning text-dark">
+                                        {{ "%.0f"|format(porcentaje) }}%
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success">
+                                        {{ "%.0f"|format(porcentaje) }}%
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">No definido</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for('warehouses.detail_warehouse', codigo=warehouse.codigo) }}"
+                               class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            <a href="{{ url_for('warehouses.edit_warehouse', codigo=warehouse.codigo) }}"
+                               class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <a href="{{ url_for('warehouses.delete_warehouse', codigo=warehouse.codigo) }}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Eliminar este almacén? No se podrá eliminar si tiene inventario activo.')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            No hay almacenes registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

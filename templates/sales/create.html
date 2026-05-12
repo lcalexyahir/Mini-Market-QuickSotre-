@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Venta{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-cash-register"></i> Registrar Venta</h1>
+    <p>Seleccione cliente, productos y tipo de pago para generar una nueva venta.</p>
+</div>
+
+<form method="POST" id="sale-form">
+
+    <div class="row">
+
+        <div class="col-md-5 mb-3">
+            <div class="card system-card">
+                <div class="card-header bg-primary text-white">
+                    <h5><i class="fas fa-user"></i> Datos del cliente</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label for="id_cliente" class="form-label">Cliente *</label>
+                        <select class="form-select" id="id_cliente" name="id_cliente" required>
+                            <option value="">Seleccione un cliente</option>
+
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">
+                                {{ client.nombre }} - CI: {{ client.ci or 'Sin CI' }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_tipo_pago" class="form-label">Tipo de pago *</label>
+                        <select class="form-select" id="id_tipo_pago" name="id_tipo_pago" required>
+                            <option value="">Seleccione tipo de pago</option>
+
+                            {% for payment in payment_types %}
+                            <option value="{{ payment.id }}">
+                                {{ payment.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="referencia_externa" class="form-label">Referencia externa</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="referencia_externa"
+                            name="referencia_externa"
+                            placeholder="Ej: número de transferencia, QR, comprobante"
+                        >
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 mb-3">
+            <div class="card system-card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-box"></i> Productos de la venta</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th style="width: 110px;">Cantidad</th>
+                                    <th style="width: 130px;">Precio</th>
+                                    <th style="width: 130px;">Subtotal</th>
+                                    <th style="width: 70px;">Quitar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="items-body">
+                                <tr class="item-row">
+                                    <td>
+                                        <select class="form-select product-select" name="codigo_producto[]" required>
+                                            <option value="" data-price="0">Seleccione producto</option>
+
+                                            {% for product in products %}
+                                            <option value="{{ product.codigo }}"
+                                                    data-price="{{ product.precio_venta }}">
+                                                {{ product.nombre }} - Bs {{ "%.2f"|format(product.precio_venta) }}
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+
+                                    <td>
+                                        <input
+                                            type="number"
+                                            class="form-control quantity-input"
+                                            name="cantidad[]"
+                                            min="1"
+                                            value="1"
+                                            required
+                                        >
+                                    </td>
+
+                                    <td>
+                                        <input
+                                            type="text"
+                                            class="form-control price-input"
+                                            value="0.00"
+                                            readonly
+                                        >
+                                    </td>
+
+                                    <td>
+                                        <input
+                                            type="text"
+                                            class="form-control subtotal-input"
+                                            value="0.00"
+                                            readonly
+                                        >
+                                    </td>
+
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-row">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary" id="add-row">
+                        <i class="fas fa-plus"></i> Agregar producto
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card system-card mt-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+                <h4 class="mb-0">
+                    Total:
+                    <span class="text-success">
+                        Bs <span id="total-sale">0.00</span>
+                    </span>
+                </h4>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Registrar Venta
+                </button>
+
+                <a href="{{ url_for('sales.list_sales') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const itemsBody = document.getElementById('items-body');
+    const addRowButton = document.getElementById('add-row');
+    const totalSale = document.getElementById('total-sale');
+
+    function toNumber(value) {
+        const number = parseFloat(value);
+        return isNaN(number) ? 0 : number;
+    }
+
+    function updateRow(row) {
+        const productSelect = row.querySelector('.product-select');
+        const quantityInput = row.querySelector('.quantity-input');
+        const priceInput = row.querySelector('.price-input');
+        const subtotalInput = row.querySelector('.subtotal-input');
+
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        const price = toNumber(selectedOption.dataset.price);
+        const quantity = parseInt(quantityInput.value) || 0;
+        const subtotal = price * quantity;
+
+        priceInput.value = price.toFixed(2);
+        subtotalInput.value = subtotal.toFixed(2);
+
+        updateTotal();
+    }
+
+    function updateTotal() {
+        let total = 0;
+
+        document.querySelectorAll('.subtotal-input').forEach(function (input) {
+            total += toNumber(input.value);
+        });
+
+        totalSale.textContent = total.toFixed(2);
+    }
+
+    function refreshAllRows() {
+        document.querySelectorAll('.item-row').forEach(function (row) {
+            updateRow(row);
+        });
+    }
+
+    addRowButton.addEventListener('click', function () {
+        const firstRow = document.querySelector('.item-row');
+        const newRow = firstRow.cloneNode(true);
+
+        newRow.querySelector('.product-select').selectedIndex = 0;
+        newRow.querySelector('.quantity-input').value = 1;
+        newRow.querySelector('.price-input').value = '0.00';
+        newRow.querySelector('.subtotal-input').value = '0.00';
+
+        itemsBody.appendChild(newRow);
+        updateTotal();
+    });
+
+    itemsBody.addEventListener('change', function (event) {
+        if (event.target.classList.contains('product-select')) {
+            const row = event.target.closest('.item-row');
+            updateRow(row);
+        }
+    });
+
+    itemsBody.addEventListener('input', function (event) {
+        if (event.target.classList.contains('quantity-input')) {
+            const row = event.target.closest('.item-row');
+            updateRow(row);
+        }
+    });
+
+    itemsBody.addEventListener('click', function (event) {
+        const button = event.target.closest('.remove-row');
+
+        if (button) {
+            const rows = document.querySelectorAll('.item-row');
+
+            if (rows.length <= 1) {
+                alert('Debe existir al menos un producto en la venta.');
+                return;
+            }
+
+            button.closest('.item-row').remove();
+            updateTotal();
+        }
+    });
+
+    refreshAllRows();
+});
+</script>
+
+{% endblock %}

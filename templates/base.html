@@ -36,7 +36,7 @@
 
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('attendance.attendance_dashboard') }}">
-                            <i class="fas fa-clock"></i> Bitacora
+                            <i class="fas fa-clock"></i> Bitácora
                         </a>
                     </li>
 
@@ -49,6 +49,39 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('clients.list_clients') }}">
                             <i class="fas fa-user-friends"></i> Clientes
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('products.list_products') }}">
+                            <i class="fas fa-box"></i> Productos
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('providers.list_providers') }}">
+                            <i class="fas fa-truck"></i> Proveedores
+                        </a>
+                    </li>
+
+                    <!-- Módulo Ventas -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('sales.list_sales') }}">
+                            <i class="fas fa-cash-register"></i> Ventas
+                        </a>
+                    </li>
+
+                    <!-- Módulo Caja -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('cash.list_cash') }}">
+                            <i class="fas fa-money-bill-wave"></i> Caja
+                        </a>
+                    </li>
+
+                    <!-- Módulo Almacén -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('warehouses.list_warehouses') }}">
+                            <i class="fas fa-warehouse"></i> Almacén
                         </a>
                     </li>
 

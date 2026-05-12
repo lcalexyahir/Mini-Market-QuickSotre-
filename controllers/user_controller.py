@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from models.user import User
 from utils.decorators import login_required, permission_required
+from utils.password_validator import validate_password_strength
 
 user_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -30,8 +31,14 @@ def create_user():
             flash('Código, nombre, contraseña y rol son requeridos', 'danger')
             return render_template('users/create.html')
 
-        if len(password) < 3:
-            flash('La contraseña debe tener al menos 3 caracteres', 'danger')
+        # Validar seguridad de contraseña
+        password_errors = validate_password_strength(password)
+
+        if password_errors:
+            flash(
+                'La contraseña debe tener: ' + ', '.join(password_errors),
+                'danger'
+            )
             return render_template('users/create.html')
 
         try:

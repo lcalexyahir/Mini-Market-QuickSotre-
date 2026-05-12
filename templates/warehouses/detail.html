@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Almacén{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-warehouse"></i> Detalle de Almacén {{ warehouse.codigo }}</h1>
+    <p>Control de inventario, entradas y salidas de productos.</p>
+</div>
+
+<div class="row">
+
+    <div class="col-md-5 mb-3">
+        <div class="card system-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-info-circle"></i> Datos generales</h5>
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    <strong>Código:</strong>
+                    {{ warehouse.codigo }}
+                </p>
+
+                <p>
+                    <strong>Nombre:</strong>
+                    {{ warehouse.nombre }}
+                </p>
+
+                <p>
+                    <strong>Dirección:</strong>
+                    {{ warehouse.direccion or '-' }}
+                </p>
+
+                <p>
+                    <strong>Capacidad actual:</strong>
+                    {{ warehouse.capacidad_actual or 0 }}
+                </p>
+
+                <p>
+                    <strong>Capacidad total:</strong>
+                    {% if warehouse.capacidad_total and warehouse.capacidad_total > 0 %}
+                        {{ warehouse.capacidad_total }}
+                    {% else %}
+                        Sin límite definido
+                    {% endif %}
+                </p>
+
+                {% if warehouse.capacidad_total and warehouse.capacidad_total > 0 %}
+                    {% set porcentaje = ((warehouse.capacidad_actual or 0) / warehouse.capacidad_total * 100) %}
+
+                    <p>
+                        <strong>Ocupación:</strong>
+
+                        {% if porcentaje >= 90 %}
+                            <span class="badge bg-danger">
+                                {{ "%.0f"|format(porcentaje) }}%
+                            </span>
+                        {% elif porcentaje >= 70 %}
+                            <span class="badge bg-warning text-dark">
+                                {{ "%.0f"|format(porcentaje) }}%
+                            </span>
+                        {% else %}
+                            <span class="badge bg-success">
+                                {{ "%.0f"|format(porcentaje) }}%
+                            </span>
+                        {% endif %}
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    {% if permissions.can_entry %}
+    <div class="col-md-7 mb-3">
+        <div class="card system-card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-plus"></i> Registrar entrada de producto</h5>
+            </div>
+
+            <div class="card-body">
+
+                <form method="POST" action="{{ url_for('warehouses.register_entry', codigo=warehouse.codigo) }}">
+
+                    <div class="mb-3">
+                        <label for="codigo_producto" class="form-label">Producto *</label>
+                        <select class="form-select" id="codigo_producto" name="codigo_producto" required>
+                            <option value="">Seleccione producto</option>
+
+                            {% for product in products %}
+                            <option value="{{ product.codigo }}">
+                                {{ product.nombre }} - {{ product.codigo }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad *</label>
+                        <input
+                            type="number"
+                            min="1"
+                            class="form-control"
+                            id="cantidad"
+                            name="cantidad"
+                            required
+                            placeholder="Ej: 10"
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha_vencimiento" class="form-label">Fecha de vencimiento</label>
+                        <input
+                            type="date"
+                            class="form-control"
+                            id="fecha_vencimiento"
+                            name="fecha_vencimiento"
+                        >
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Registrar entrada
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="card system-card mt-3">
+    <div class="card-header bg-dark text-white">
+        <h5><i class="fas fa-boxes"></i> Inventario del almacén</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código Producto</th>
+                        <th>Producto</th>
+                        <th>Stock Actual</th>
+                        <th>Última Entrada</th>
+                        <th>Próximo Vencimiento</th>
+
+                        {% if permissions.can_exit %}
+                        <th>Salida</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in inventory %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.codigo_producto }}</strong>
+                        </td>
+
+                        <td>{{ item.producto }}</td>
+
+                        <td>
+                            {% if item.cantidad_total <= 0 %}
+                                <span class="badge bg-danger">Sin stock</span>
+                            {% elif item.cantidad_total <= 5 %}
+                                <span class="badge bg-warning text-dark">
+                                    {{ item.cantidad_total }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success">
+                                    {{ item.cantidad_total }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.ultima_entrada %}
+                                {{ item.ultima_entrada.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if item.proximo_vencimiento %}
+                                {{ item.proximo_vencimiento.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        {% if permissions.can_exit %}
+                        <td>
+                            <form method="POST"
+                                  action="{{ url_for('warehouses.register_exit', codigo=warehouse.codigo) }}"
+                                  class="d-flex gap-2">
+
+                                <input type="hidden" name="codigo_producto" value="{{ item.codigo_producto }}">
+
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="{{ item.cantidad_total }}"
+                                    class="form-control form-control-sm"
+                                    name="cantidad"
+                                    placeholder="Cant."
+                                    required
+                                    style="width: 90px;"
+                                >
+
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    name="motivo"
+                                    placeholder="Motivo"
+                                    style="width: 150px;"
+                                >
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="return confirm('¿Registrar salida de este producto?')">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+
+                    {% else %}
+
+                        {% if permissions.can_exit %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">
+                                No hay productos registrados en este almacén.
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                No hay productos registrados en este almacén.
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('warehouses.list_warehouses') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Ventas{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-cash-register"></i> Gestión de Ventas</h1>
+    <p>Registro y consulta de ventas realizadas en MiniMarket QuickStore.</p>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><i class="fas fa-list"></i> Ventas registradas</h4>
+
+    <a href="{{ url_for('sales.create_sale') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nueva Venta
+    </a>
+</div>
+
+<div class="card system-card">
+    <div class="card-header bg-dark text-white">
+        <h5><i class="fas fa-receipt"></i> Lista de ventas</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Cajero</th>
+                        <th>Tipo Pago</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for sale in sales %}
+                    <tr>
+                        <td>
+                            <strong>{{ sale.codigo }}</strong>
+                        </td>
+
+                        <td>
+                            {{ sale.fecha_hora.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+
+                        <td>
+                            {{ sale.cliente }}
+                            <br>
+                            <small class="text-muted">CI: {{ sale.cliente_ci or '-' }}</small>
+                        </td>
+
+                        <td>{{ sale.usuario }}</td>
+
+                        <td>{{ sale.tipo_pago }}</td>
+
+                        <td>
+                            <strong>Bs {{ "%.2f"|format(sale.monto_final) }}</strong>
+                        </td>
+
+                        <td>
+                            {% if sale.estado %}
+                                <span class="badge bg-success">Activa</span>
+                            {% else %}
+                                <span class="badge bg-danger">Anulada</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for('sales.detail_sale', codigo=sale.codigo) }}"
+                               class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            {% if sale.estado %}
+                            <a href="{{ url_for('sales.cancel_sale', codigo=sale.codigo) }}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Seguro que deseas anular esta venta?')">
+                                <i class="fas fa-ban"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            No hay ventas registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Venta{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <h1><i class="fas fa-receipt"></i> Detalle de Venta {{ sale.codigo }}</h1>
+    <p>Información completa de la factura registrada.</p>
+</div>
+
+<div class="row">
+
+    <div class="col-md-5 mb-3">
+        <div class="card system-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-info-circle"></i> Datos generales</h5>
+            </div>
+
+            <div class="card-body">
+
+                <p>
+                    <strong>Código:</strong>
+                    {{ sale.codigo }}
+                </p>
+
+                <p>
+                    <strong>Fecha:</strong>
+                    {{ sale.fecha_hora.strftime('%d/%m/%Y %H:%M:%S') }}
+                </p>
+
+                <p>
+                    <strong>Cliente:</strong>
+                    {{ sale.cliente }}
+                </p>
+
+                <p>
+                    <strong>CI Cliente:</strong>
+                    {{ sale.cliente_ci or '-' }}
+                </p>
+
+                <p>
+                    <strong>Cajero:</strong>
+                    {{ sale.usuario }}
+                </p>
+
+                <p>
+                    <strong>Tipo de pago:</strong>
+                    {{ sale.tipo_pago }}
+                </p>
+
+                <p>
+                    <strong>Estado:</strong>
+                    {% if sale.estado %}
+                        <span class="badge bg-success">Activa</span>
+                    {% else %}
+                        <span class="badge bg-danger">Anulada</span>
+                    {% endif %}
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7 mb-3">
+        <div class="card system-card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-money-bill"></i> Resumen de pago</h5>
+            </div>
+
+            <div class="card-body">
+
+                <h5>Monto total:</h5>
+
+                <h2 class="text-success">
+                    Bs {{ "%.2f"|format(sale.monto_final) }}
+                </h2>
+
+                <p>
+                    <strong>Pagado:</strong>
+                    {% if sale.pagado %}
+                        <span class="badge bg-success">Sí</span>
+                    {% else %}
+                        <span class="badge bg-danger">No</span>
+                    {% endif %}
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card system-card mt-3">
+    <div class="card-header bg-dark text-white">
+        <h5><i class="fas fa-boxes"></i> Productos vendidos</h5>
+    </div>
+
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código Producto</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for detail in details %}
+                    <tr>
+                        <td>{{ detail.codigo_producto }}</td>
+                        <td>{{ detail.producto }}</td>
+                        <td>{{ detail.cantidad }}</td>
+                        <td>Bs {{ "%.2f"|format(detail.precio_unitario) }}</td>
+                        <td>
+                            <strong>Bs {{ "%.2f"|format(detail.subtotal) }}</strong>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No hay productos registrados en esta venta.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <th colspan="4" class="text-end">TOTAL:</th>
+                        <th>Bs {{ "%.2f"|format(sale.monto_final) }}</th>
+                    </tr>
+                </tfoot>
+
+            </table>
+        </div>
+
+        <div class="mt-3">
+            <a href="{{ url_for('sales.list_sales') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+
+            {% if sale.estado %}
+            <a href="{{ url_for('sales.cancel_sale', codigo=sale.codigo) }}"
+               class="btn btn-danger"
+               onclick="return confirm('¿Seguro que deseas anular esta venta?')">
+                <i class="fas fa-ban"></i> Anular Venta
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
